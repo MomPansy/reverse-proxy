@@ -2,11 +2,11 @@ import 'package:askngo/components/bottom_nav_bar.dart';
 import 'package:askngo/components/top_bar.dart';
 import 'package:flutter/material.dart';
 
-import '../components/create_trip_form.dart';
+import '../components/trips/create_trip_form.dart';
 
 class CreateTripPage extends StatelessWidget{
   const CreateTripPage({super.key});
-  static const routeName = '/create_trip';
+  static const routeName = '/trips';
 
   @override
   Widget build(BuildContext context) {

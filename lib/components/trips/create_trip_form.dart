@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../constants/form_options.dart';
-import 'expandable_section.dart';
+import '../../constants/form_options.dart';
+import '../trips/expandable_section.dart';
 
 class CreateTripForm extends StatefulWidget {
   const CreateTripForm({super.key});

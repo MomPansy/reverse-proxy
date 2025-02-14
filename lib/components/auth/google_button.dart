@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../constants/paths.dart';
+import '../../constants/paths.dart';
 
 class GoogleButton extends StatelessWidget {
   final String text;

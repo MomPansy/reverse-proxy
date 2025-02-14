@@ -54,7 +54,7 @@ Future<void> SignUp({
     if (e.code == 'email-already-in-use') {
       showSnackBar(context, 'Account already exists');
     }
-  } catch (e, s) {
+  } catch (e) {
     showSnackBar(context, 'Error occurred, please try again');
   }
 }
@@ -80,7 +80,7 @@ Future<UserCredential?> SignInUpWithGoogle() async {
       idToken: googleAuth.idToken,
     );
     return await FirebaseAuth.instance.signInWithCredential(credential);
-  } catch (e, s) {
+  } catch (e) {
 
   }
   return null;

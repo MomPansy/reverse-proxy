@@ -1,10 +1,10 @@
 // ignore_for_file: file_names
 
-import 'package:askngo/components/sign_in_form.dart';
+import 'package:askngo/components/auth/sign_in_form.dart';
 import 'package:flutter/material.dart';
 
-import '../components/auth_page_header.dart';
-import '../components/google_button.dart';
+import '../components/auth/auth_page_header.dart';
+import '../components/auth/google_button.dart';
 import '../services/auth.dart';
 import '../utils/show_snackbar.dart';
 
