@@ -1,3 +1,5 @@
+import 'package:askngo/Components/home_tabs.dart';
+import 'package:askngo/Components/top_bar.dart';
 import 'package:flutter/material.dart';
 import '../Components/bottom_nav_bar.dart';
 
@@ -7,20 +9,17 @@ class HomePage extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(''),
-      ),
-      bottomNavigationBar: BottomNavBar(),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-          ],
+    return SafeArea(
+      child: Scaffold(
+        appBar: TopBar(hasBackButton: true, title: 'Home page',),
+        bottomNavigationBar: BottomNavBar(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              HomeTabs(),
+            ],
+          ),
         ),
       ),
     );

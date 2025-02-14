@@ -1,3 +1,5 @@
+import 'package:askngo/Components/bottom_nav_bar.dart';
+import 'package:askngo/Components/top_bar.dart';
 import 'package:flutter/material.dart';
 
 class CreateTripPage extends StatelessWidget{
@@ -6,6 +8,22 @@ class CreateTripPage extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return SafeArea(
+      child: Scaffold(
+        appBar: TopBar(hasBackButton: true, title: 'New Trip',),
+        bottomNavigationBar: BottomNavBar(),
+        body: Padding(
+          padding: const EdgeInsets.all(8),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container()
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
