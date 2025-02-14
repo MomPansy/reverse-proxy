@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1053901544741",
+    "project_id": "askngo-41a7b",
+    "storage_bucket": "askngo-41a7b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1053901544741:android:70e3da14d16531d63b4ecc",
+        "android_client_info": {
+          "package_name": "com.example.askngo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1053901544741-7qcue1p2n769h7r31gns6gi3uv0q553b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaXciKwjsJdR4ejFiVG_VkfY34ec9spn4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1053901544741-7qcue1p2n769h7r31gns6gi3uv0q553b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
