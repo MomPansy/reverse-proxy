@@ -1,3 +1,4 @@
+import 'package:askngo/pages/auth_page.dart';
 import 'package:askngo/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -28,6 +29,10 @@ class LandingPage extends StatelessWidget{
               onPressed: () => _goToPage(context: context, routeName: HomePage.routeName),
               child: Text('Home page'),
             ),
+            ElevatedButton(
+              onPressed: () => _goToPage(context: context, routeName: AuthPage.routeName),
+              child: Text('Auth page'),
+            )
           ],
         ),
       ),
