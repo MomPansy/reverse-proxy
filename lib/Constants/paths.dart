@@ -1,1 +1,1 @@
-class paths{}
+class Paths{}

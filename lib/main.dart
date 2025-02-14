@@ -1,4 +1,11 @@
+import 'package:askngo/pages/auth_page.dart';
+import 'package:askngo/pages/create_trip_page.dart';
+import 'package:askngo/pages/explore_page.dart';
+import 'package:askngo/pages/home_page.dart';
 import 'package:askngo/pages/landing_page.dart';
+import 'package:askngo/pages/live_trip_page.dart';
+import 'package:askngo/pages/trip_details_page.dart';
+import 'package:askngo/pages/trip_review_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -22,20 +29,48 @@ class MyApp extends StatelessWidget {
     final router = GoRouter(
       initialLocation: LandingPage.routeName,
       routes: [
-        // ----- General pages -----
         GoRoute(
           path: LandingPage.routeName,
           builder: (context, state) => const LandingPage(),
         ),
+        GoRoute(
+          path: HomePage.routeName,
+          builder: (context, state) => const HomePage(),
+        ),
+        GoRoute(
+          path: AuthPage.routeName,
+          builder: (context, state) => const AuthPage(),
+        ),
+        GoRoute(
+          path: CreateTripPage.routeName,
+          builder: (context, state) => const CreateTripPage(),
+        ),
+        GoRoute(
+          path: ExplorePage.routeName,
+          builder: (context, state) => const ExplorePage(),
+        ),
+        GoRoute(
+          path: LiveTripPage.routeName,
+          builder: (context, state) => const LiveTripPage(),
+        ),
+        GoRoute(
+          path: TripDetailsPage.routeName,
+          builder: (context, state) => const TripDetailsPage(),
+        ),
+        GoRoute(
+          path: TripReviewPage.routeName,
+          builder: (context, state) => const TripReviewPage(),
+        ),
       ],
     );
-    return MaterialApp(
-      title: 'Flutter Demo',
+    return MaterialApp.router(
+      title: 'Askngo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const LandingPage(),
+      routerConfig: router,
+      debugShowCheckedModeBanner: false,
     );
   }
 }
