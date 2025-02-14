@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../Constants/constants.dart';
+import '../constants/constants.dart';
 
 class BottomNavBar extends StatefulWidget{
   const BottomNavBar({super.key});

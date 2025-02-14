@@ -1,7 +1,7 @@
-import 'package:askngo/Components/home_tabs.dart';
-import 'package:askngo/Components/top_bar.dart';
+import 'package:askngo/components/home_tabs.dart';
+import 'package:askngo/components/top_bar.dart';
 import 'package:flutter/material.dart';
-import '../Components/bottom_nav_bar.dart';
+import '../components/bottom_nav_bar.dart';
 
 class HomePage extends StatelessWidget{
   const HomePage({super.key});

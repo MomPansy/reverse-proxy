@@ -1,12 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../Components/auth_form_field.dart';
-import '../Components/visibility_icon.dart';
-import '../Constants/styles.dart';
-import '../Services/auth.dart';
-import '../Utils/show_snackbar.dart';
-import '../Utils/validations.dart';
+import '../components/auth_form_field.dart';
+import '../components/visibility_icon.dart';
+import '../constants/styles.dart';
+import '../services/auth.dart';
+import '../utils/show_snackbar.dart';
+import '../utils/validations.dart';
 
 class SignInForm extends StatefulWidget {
   final bool isLoading;
