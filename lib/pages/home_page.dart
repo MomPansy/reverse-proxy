@@ -1,4 +1,4 @@
-import 'package:askngo/components/home_tabs.dart';
+import 'package:askngo/components/home/home_tabs.dart';
 import 'package:askngo/components/top_bar.dart';
 import 'package:flutter/material.dart';
 import '../components/bottom_nav_bar.dart';
