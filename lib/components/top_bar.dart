@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../Constants/paths.dart';
+import '../constants/paths.dart';
 
 class TopBar extends StatelessWidget implements PreferredSizeWidget {
   final bool hasBackButton;

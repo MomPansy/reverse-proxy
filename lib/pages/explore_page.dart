@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../Components/bottom_nav_bar.dart';
-import '../Components/top_bar.dart';
+import '../components/bottom_nav_bar.dart';
+import '../components/top_bar.dart';
 
 class ExplorePage extends StatelessWidget{
   const ExplorePage({super.key});
