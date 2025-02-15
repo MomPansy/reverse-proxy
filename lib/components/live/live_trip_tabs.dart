@@ -1,3 +1,5 @@
+import 'package:askngo/components/live/alerts_tab.dart';
+import 'package:askngo/components/live/travel_plan_tab.dart';
 import 'package:flutter/material.dart';
 
 import 'map_tab.dart';
@@ -23,9 +25,9 @@ class _LiveTripTabsState extends State<LiveTripTabs> {
       case 0:
         return MapTab();
       case 1:
-        return Container();
+        return TravelPlanTab();
       case 2:
-        return Container();
+        return AlertsTab();
     }
     return Container();
   }
