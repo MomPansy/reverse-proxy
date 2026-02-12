@@ -1,0 +1,15 @@
+# Go build
+reverse-proxy
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+.Trash/
+
+# Claude Code
+.claude/settings.local.json
