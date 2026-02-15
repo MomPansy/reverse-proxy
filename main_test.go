@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
 
 func TestHealthCheck(t *testing.T) {
@@ -179,12 +182,86 @@ func TestSetProxyHeaders_CopiesOriginalHeaders(t *testing.T) {
 	}
 }
 
+func TestSetProxyHeaders_StripsHopByHopHeaders(t *testing.T) {
+	src := httptest.NewRequest("GET", "/test", nil)
+	src.RemoteAddr = "1.2.3.4:5678"
+	src.Header.Set("Connection", "keep-alive, X-Custom-Hop")
+	src.Header.Set("Keep-Alive", "timeout=5")
+	src.Header.Set("Proxy-Authorization", "Basic abc")
+	src.Header.Set("Transfer-Encoding", "chunked")
+	src.Header.Set("Upgrade", "websocket")
+	src.Header.Set("X-Custom-Hop", "should-be-removed")
+	src.Header.Set("Authorization", "Bearer keep-me")
+
+	dst, _ := http.NewRequest("GET", "http://backend/test", nil)
+	setProxyHeaders(dst, src)
+
+	// These hop-by-hop headers should be stripped
+	stripped := []string{"Connection", "Keep-Alive", "Proxy-Authorization", "Transfer-Encoding", "Upgrade", "X-Custom-Hop"}
+	for _, h := range stripped {
+		if got := dst.Header.Get(h); got != "" {
+			t.Errorf("%s should be stripped, got %q", h, got)
+		}
+	}
+
+	// End-to-end headers should be preserved
+	if got := dst.Header.Get("Authorization"); got != "Bearer keep-me" {
+		t.Errorf("Authorization = %q, want %q", got, "Bearer keep-me")
+	}
+}
+
+func TestReverseProxy_BodyTooLarge(t *testing.T) {
+	// Backend must read the full body before responding, otherwise the proxy's
+	// client.Do returns the 200 response before the MaxBytesReader error triggers.
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		io.Copy(io.Discard, r.Body)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+
+	routes["/service1"] = backend.URL
+
+	// Create a body that exceeds maxBodySize (10MB)
+	body := bytes.NewReader(make([]byte, maxBodySize+1))
+	req := httptest.NewRequest("POST", "/service1/upload", body)
+	rr := httptest.NewRecorder()
+
+	p := &proxy{client: http.DefaultClient}
+	p.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusRequestEntityTooLarge {
+		t.Errorf("status = %d, want %d", status, http.StatusRequestEntityTooLarge)
+	}
+}
+
+func TestReverseProxy_BackendTimeout(t *testing.T) {
+	// Backend that sleeps longer than the client timeout
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(200 * time.Millisecond)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer backend.Close()
+
+	routes["/service1"] = backend.URL
+
+	req := httptest.NewRequest("GET", "/service1/slow", nil)
+	rr := httptest.NewRecorder()
+
+	p := &proxy{client: &http.Client{Timeout: 50 * time.Millisecond}}
+	p.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusGatewayTimeout {
+		t.Errorf("status = %d, want %d", status, http.StatusGatewayTimeout)
+	}
+}
+
 func TestReverseProxy_NoRoute(t *testing.T) {
 	// Create a request to an unknown route
 	req := httptest.NewRequest("GET", "/unknown", nil)
 	rr := httptest.NewRecorder()
 	// Call the reverseProxyHandler
-	reverseProxyHandler(rr, req)
+	p := &proxy{client: http.DefaultClient}
+	p.ServeHTTP(rr, req)
 	// Check if the status code is 404
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
@@ -206,7 +283,8 @@ func TestReverseProxy(t *testing.T) {
 	req := httptest.NewRequest("GET", "/service1/test", nil)
 	rr := httptest.NewRecorder()
 	// Call the reverseProxyHandler
-	reverseProxyHandler(rr, req)
+	p := &proxy{client: http.DefaultClient}
+	p.ServeHTTP(rr, req)
 
 	// Check if the status code is 200
 	if status := rr.Code; status != http.StatusOK {
