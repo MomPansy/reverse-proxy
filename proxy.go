@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 // matchRoute finds the longest matching route prefix for the given path.
@@ -78,8 +79,29 @@ type proxy struct {
 
 func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
+	recorder := &responseRecorder{ResponseWriter: w, statusCode: http.StatusOK}
+	w = recorder
+	start := time.Now()
 
 	prefix, backend, remainder := matchRoute(r.URL.Path, routes)
+	defer func() {
+		clientIP, _, _ := net.SplitHostPort(r.RemoteAddr)
+		requestSize := int(r.ContentLength)
+		if requestSize < 0 {
+			requestSize = 0
+		}
+		LogRequest(LogEntry{
+			Timestamp:    start,
+			Method:       r.Method,
+			Path:         r.URL.Path,
+			Backend:      backend,
+			Status:       recorder.statusCode,
+			LatencyMs:    time.Since(start).Milliseconds(),
+			ClientIP:     clientIP,
+			RequestSize:  requestSize,
+			ResponseSize: recorder.bytesWritten,
+		})
+	}()
 
 	if prefix != "" {
 		targetURL := backend + remainder
