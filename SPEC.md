@@ -49,11 +49,11 @@ Client → Proxy (:8080) → Backend (e.g., :8081)
 
 ### 3.1 Proxy Headers (added to forwarded requests)
 
-| Header | Value |
-|---|---|
-| `X-Forwarded-For` | Client's IP address (appended if already present) |
+| Header              | Value                                                  |
+| ------------------- | ------------------------------------------------------ |
+| `X-Forwarded-For`   | Client's IP address (appended if already present)      |
 | `X-Forwarded-Proto` | `http` (the scheme the client used to reach the proxy) |
-| `X-Real-IP` | Client's IP address (original client, not appended) |
+| `X-Real-IP`         | Client's IP address (original client, not appended)    |
 
 ### 3.2 Host Header
 
@@ -69,7 +69,7 @@ The following headers MUST be stripped before forwarding to the backend:
 - `Proxy-Authenticate`
 - `Proxy-Authorization`
 - `TE`
-- `Trailers`
+- `Trailer`
 - `Transfer-Encoding`
 - `Upgrade`
 
@@ -131,7 +131,7 @@ These are set on the `http.Server` struct.
 
 ### 6.3 Request Body Size Limit
 
-- **Maximum body size: 10 MB** (10 * 1024 * 1024 bytes)
+- **Maximum body size: 10 MB** (10 _ 1024 _ 1024 bytes)
 - Enforced using `http.MaxBytesReader` wrapping the request body
 - If exceeded, return `413 Request Entity Too Large`
 - Applied to all routes uniformly
@@ -163,6 +163,7 @@ Structured log output to stdout for every proxied request:
 ```
 
 Fields:
+
 - `timestamp`: ISO 8601 / RFC 3339 format
 - `method`: HTTP method
 - `path`: original request path (before prefix stripping)
@@ -243,6 +244,7 @@ Use `httptest.NewServer` to create fake backends and `httptest.NewRequest` + `ht
 ### 12.2 Test Cases
 
 **Route Matching:**
+
 - Request to `/service1/foo` routes to correct backend
 - Request to `/service1` (no trailing path) routes correctly, backend receives `/`
 - Request to `/unknown` returns 404
@@ -250,10 +252,12 @@ Use `httptest.NewServer` to create fake backends and `httptest.NewRequest` + `ht
 - Longest prefix match: `/service1/api` preferred over `/service1` when both exist
 
 **Prefix Stripping:**
+
 - `/service1/api/users` → backend receives path `/api/users`
 - `/service1` → backend receives path `/`
 
 **Header Forwarding:**
+
 - `X-Forwarded-For` is set to client IP
 - `X-Forwarded-Proto` is set to `http`
 - `X-Real-IP` is set to client IP
@@ -262,24 +266,29 @@ Use `httptest.NewServer` to create fake backends and `httptest.NewRequest` + `ht
 - Custom client headers are forwarded to backend
 
 **Response Streaming:**
+
 - Backend response body is correctly forwarded to client
 - Backend response headers are forwarded
 - Backend status code is preserved (test 200, 201, 400, 500)
 
 **Error Handling:**
+
 - Backend is down → proxy returns 502
 - Backend times out → proxy returns 504
 - Request body exceeds 10MB → proxy returns 413
 
 **HTTP Methods:**
+
 - GET, POST, PUT, DELETE, PATCH all forwarded correctly
 - Request body (for POST/PUT) is forwarded intact
 
 **Health Check:**
+
 - `GET /health` returns 200 with body `OK`
 - Health check does NOT get forwarded to any backend
 
 **Body Size Limit:**
+
 - Request with body under 10MB succeeds
 - Request with body over 10MB returns 413
 

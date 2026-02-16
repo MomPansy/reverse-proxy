@@ -11,6 +11,33 @@ import (
 	"time"
 )
 
+// hopByHopHeaders are headers that must be stripped before forwarding
+// per RFC 2616 §13.5.1. These apply to both request and response headers.
+var hopByHopHeaders = []string{
+	"Connection",
+	"Keep-Alive",
+	"Proxy-Authenticate",
+	"Proxy-Authorization",
+	"Proxy-Connection",
+	"TE",
+	"Trailer",
+	"Transfer-Encoding",
+	"Upgrade",
+}
+
+// stripHopByHopHeaders removes hop-by-hop headers from an http.Header,
+// including any headers referenced in the Connection header.
+func stripHopByHopHeaders(h http.Header) {
+	if connection := h.Get("Connection"); connection != "" {
+		for _, token := range strings.Split(connection, ",") {
+			h.Del(strings.TrimSpace(token))
+		}
+	}
+	for _, hdr := range hopByHopHeaders {
+		h.Del(hdr)
+	}
+}
+
 // matchRoute finds the longest matching route prefix for the given path.
 // Returns the matched prefix, target URL, and remaining path suffix.
 // If no route matches, all return values are empty strings.
@@ -31,32 +58,8 @@ func matchRoute(path string, routes map[string]string) (match, target, suffix st
 // setProxyHeaders copies headers from the original request and sets
 // X-Real-IP, X-Forwarded-Proto, and X-Forwarded-For on the outbound request.
 func setProxyHeaders(dst *http.Request, src *http.Request) {
-	headersToStrip := []string{
-		"Connection",
-		"Keep-Alive",
-		"Proxy-Authenticate",
-		"Proxy-Authorization",
-		"TE",
-		"Trailers",
-		"Transfer-Encoding",
-		"Upgrade",
-	}
-
-	dstHeader := src.Header.Clone()
-
-	// hop-by-hop headers are defined in the Connection header and should be removed
-	if connectionHeader := dstHeader.Get("Connection"); connectionHeader != "" {
-		for _, h := range strings.Split(connectionHeader, ",") {
-			headersToStrip = append(headersToStrip, strings.TrimSpace(h))
-		}
-	}
-
-	// Strip headers that are not allowed to be forwarded
-	for _, h := range headersToStrip {
-		dstHeader.Del(h)
-	}
-
-	dst.Header = dstHeader
+	dst.Header = src.Header.Clone()
+	stripHopByHopHeaders(dst.Header)
 
 	clientIP, _, err := net.SplitHostPort(src.RemoteAddr)
 	if err != nil {
@@ -71,6 +74,8 @@ func setProxyHeaders(dst *http.Request, src *http.Request) {
 	} else {
 		dst.Header.Set("X-Forwarded-For", clientIP)
 	}
+
+	dst.Host = src.Host
 }
 
 type proxy struct {
@@ -129,7 +134,9 @@ func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		defer res.Body.Close()
-		// Copy header from res to w
+		// Strip hop-by-hop headers from response before copying
+		stripHopByHopHeaders(res.Header)
+		// Copy remaining headers to response
 		for k, v := range res.Header {
 			w.Header()[k] = v
 		}
