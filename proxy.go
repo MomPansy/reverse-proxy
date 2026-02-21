@@ -6,6 +6,8 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -149,4 +151,48 @@ func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	// no route matched, return 404
 	http.NotFound(w, r)
+}
+
+type proxyError struct {
+	message string
+	status  int
+}
+
+func rewriteRequest(pr *httputil.ProxyRequest) {
+	prefix, backend, remainder := matchRoute(pr.In.URL.Path, routes)
+
+	if prefix != "" {
+		targetURL := backend + remainder
+		backendURL, err := url.Parse(targetURL)
+		if err != nil {
+			// handle the error
+			ctx := context.WithValue(pr.Out.Context(), ContextErrorKey, proxyError{message: "Internal proxy configuration error", status: http.StatusBadGateway})
+			pr.Out = pr.Out.WithContext(ctx)
+			return
+		}
+		pr.SetURL(backendURL)
+	} else {
+		ctx := context.WithValue(pr.Out.Context(), ContextErrorKey, proxyError{message: "Route not found", status: http.StatusNotFound})
+		pr.Out = pr.Out.WithContext(ctx)
+	}
+}
+
+func errorHandler(w http.ResponseWriter, r *http.Request, err error) {
+	if val := r.Context().Value(ContextErrorKey); val != nil {
+		if pe, ok := val.(proxyError); ok {
+			http.Error(w, pe.message, pe.status)
+			return
+		}
+	}
+	if err != nil {
+		var maxBytesErr *http.MaxBytesError
+		if errors.As(err, &maxBytesErr) {
+			http.Error(w, "Request body too large", http.StatusRequestEntityTooLarge)
+		} else if os.IsTimeout(err) || errors.Is(err, context.DeadlineExceeded) {
+			http.Error(w, "backend timeout", http.StatusGatewayTimeout)
+		} else {
+			http.Error(w, "Failed to reach target service", http.StatusBadGateway)
+		}
+		return
+	}
 }
