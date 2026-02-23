@@ -49,11 +49,10 @@ Client → Proxy (:8080) → Backend (e.g., :8081)
 
 ### 3.1 Proxy Headers (added to forwarded requests)
 
-| Header              | Value                                                  |
-| ------------------- | ------------------------------------------------------ |
-| `X-Forwarded-For`   | Client's IP address (appended if already present)      |
-| `X-Forwarded-Proto` | `http` (the scheme the client used to reach the proxy) |
-| `X-Real-IP`         | Client's IP address (original client, not appended)    |
+| Header            | Value                                               |
+| ----------------- | --------------------------------------------------- |
+| `X-Forwarded-For` | Client's IP address (appended if already present)   |
+| `X-Real-IP`       | Client's IP address (original client, not appended) |
 
 ### 3.2 Host Header
 
@@ -259,7 +258,6 @@ Use `httptest.NewServer` to create fake backends and `httptest.NewRequest` + `ht
 **Header Forwarding:**
 
 - `X-Forwarded-For` is set to client IP
-- `X-Forwarded-Proto` is set to `http`
 - `X-Real-IP` is set to client IP
 - Original `Host` header is preserved
 - Hop-by-hop headers (`Connection`, `Keep-Alive`, etc.) are stripped
