@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -24,10 +25,6 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	fmt.Println("Starting server...")
 
-	client := &http.Client{
-		Timeout: 60 * time.Second,
-	}
-
 	server := &http.Server{
 		Addr:              ":8080",
 		Handler:           nil,               // Use default m ux
@@ -39,7 +36,12 @@ func main() {
 
 	http.HandleFunc("/health", healthCheckHandler)
 
-	http.Handle("/", &proxy{client: client})
+	proxy := &httputil.ReverseProxy{
+		Rewrite:      rewriteRequest,
+		ErrorHandler: errorHandler,
+	}
+
+	http.Handle("/", proxy)
 
 	sigChan := make(chan os.Signal, 1)
 	go func() {
